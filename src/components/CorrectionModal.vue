@@ -171,7 +171,7 @@ export default defineComponent({
       const canvasSize = 600; // Размер стороны квадрата
       this.chartRef.width = canvasSize;
       this.chartRef.height = canvasSize;
-      
+
       this.chartInstance = new Chart(ctx, {
         type: "scatter",
         data: {
@@ -229,7 +229,7 @@ export default defineComponent({
               min: 0,
               max: 260,
               ticks: {
-                stepSize: 15, // или другой шаг, чтобы деления были удобными
+                stepSize: 20, // или другой шаг, чтобы деления были удобными
               },
             },
             y: {
@@ -359,8 +359,8 @@ export default defineComponent({
   top: 0;
   right: 0;
   width: 200px;
-  /* height: 400px; */
-  background: #ececec;
+  background: #ffffff;
+  border: solid 3px #00d9ff;
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -427,7 +427,7 @@ export default defineComponent({
 .correction-inputs .point-inputs .point-with-prefix input {
   height: 20px;
   width: 25px;
-  border-radius: 0;
+  border-radius: 5px;
   padding-left: 20px;
   padding-right: 20px;
 }

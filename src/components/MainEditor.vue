@@ -45,11 +45,11 @@
         </select>
         <div class="sizes">
           <div class="input-with-prefix">
-            <label for="width" :style="{ left: '3px' }">W</label>
+            <label for="width" :style="{ left: '3px' }">Width</label>
+            <div class="input-with-prefix-height" :style="{ gap: '10px', display: 'flex' }"><input id="width" :value="newiw" @change="updateNewiw" />
             <label for="width" class="type" :style="{ right: '3px' }">
               {{ resizeUnit === "pixels" ? "px" : "%" }}
-            </label>
-            <input id="width" :value="newiw" @change="updateNewiw" />
+            </label></div>
           </div>
           <div class="custom-checkbox">
             <input type="checkbox" v-model="bind" />
@@ -67,11 +67,11 @@
             />
           </div>
           <div class="input-with-prefix">
-            <label for="height" :style="{ left: '6px' }"> H</label>
+            <label for="height" :style="{ left: '6px' }">Height</label>
+            <div class="input-with-prefix-height" :style="{ gap: '10px', display: 'flex' }"><input id="height" :value="newih" @change="updateNewih" />
             <label for="height" class="type" :style="{ right: '3px' }">
               {{ resizeUnit === "pixels" ? "px" : "%" }}
-            </label>
-            <input id="height" :value="newih" @change="updateNewih" />
+            </label></div>
           </div>
         </div>
         <div class="interpolation">
@@ -376,48 +376,48 @@ export function nearestNeighborInterpolation(img, newWidth, newHeight) {
 </script>
 
 <style scoped>
-p{
+p {
   margin: 0;
-}
-.editor {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  /* height: 700px; */
 }
 
 .modal {
-  padding: 1px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 12px;
 }
 
 .confirm-button {
   cursor: pointer;
-  height: 25px;
-  background: #00d9ff;
-  /* border-radius: 10px; */
+  height: 35px;
+  background: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
   display: block;
-  transition: 0.3s;
 }
 
 .confirm-button:hover {
-  background: #a0a0a0;
-  border-color: #a0a0a0;
+  background: #0056b3;
 }
 
 .resize-unit {
-  height: 25px;
-  width: 90px;
+  height: 35px;
+  width: 120px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  padding: 0 10px;
 }
 
 .sizes {
   display: flex;
   margin-top: 10px;
-  width: 300px;
-  justify-content: space-between;
+  width: 100%;
+  align-items: flex-end;
+  gap: 20px;
 }
 
 .custom-checkbox {
@@ -427,8 +427,8 @@ p{
 
 .custom-checkbox input,
 .custom-checkbox .checkbox-image {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   cursor: pointer;
 }
 
@@ -438,39 +438,46 @@ p{
   cursor: pointer;
 }
 
-.custom-checkbox input[type="checkbox"]:hover {
-  border-color: #a0a0a0;
-}
-
 .input-with-prefix {
   position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
-.input-with-prefix input {
-  height: 25px;
-  width: 65px;
-  border-radius: 0;
-  padding-left: 20px;
-  padding-right: 20px;
+.input-with-prefix .input-field {
+  height: 35px;
+  width: 80px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0 10px;
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
-.input-with-prefix label {
-  color: #848484;
-  position: absolute;
-  top: 12px;
-  transform: translateY(-50%);
+.input-with-prefix .input-label {
+  color: #6c757d;
+  font-size: 14px;
+  margin-left: 5px;
 }
 
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+.input-with-prefix .input-suffix {
+  color: #6c757d;
+  font-size: 14px;
+  margin-right: 5px;
 }
 
 .interpolation {
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
+}
+
+.interpolation-select {
+  height: 35px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  padding: 0 10px;
 }
 
 .sizes-counter {

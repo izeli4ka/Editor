@@ -1,26 +1,14 @@
 <template>
-  <div class="status-bar">
+  <div :class="{ 'status-bar': true, 'pipette-mode': state === 'pipette' && pickedColor }">
     <div class="left-side">
-      <span v-if="state"> State: {{ state }}</span>
-      <span v-if="imageWidth && imageHeight">
-        | Width: {{ imageWidth }} Height: {{ imageHeight }}
-      </span>
-      <span v-if="state === 'pipette' && pickedColor">
-        | Color: {{ pickedColor }}
-      </span>
-      <div
-        v-if="state === 'pipette' && pickedColor"
-        class="pipette-color"
-        :style="{
-          background: pickedColor,
-        }"
-      ></div>
-      <span v-if="state === 'pipette' && pickedColor && xMouse && yMouse">
-        | Coordinates: {{ xMouse }}:{{ yMouse }}
-      </span>
+      <span v-if="state"> Status: {{ state }}</span>
+      <span v-if="imageWidth && imageHeight"> | W: {{ formattedImageWidth }} | H: {{ formattedImageHeight }}</span>
+      <span v-if="state === 'pipette' && pickedColor"> | C: {{ pickedColor }}</span>
+      <div v-if="state === 'pipette' && pickedColor" class="pipette-color" :style="{ background: pickedColor }"></div>
+      <span v-if="state === 'pipette' && pickedColor && xMouse && yMouse"> | Coords: {{ xMouse }}:{{ yMouse }}</span>
     </div>
-    <div>
-      <label for="scale">Scale</label>
+
+    <div class="right-side">
       <input
         type="range"
         class="scale"
@@ -32,6 +20,7 @@
         :value="scale"
         @input="updateScale"
       />
+      <span>Scale: {{ scale }}</span>
     </div>
   </div>
 </template>
@@ -49,6 +38,14 @@ export default defineComponent({
     xMouse: Number,
     yMouse: Number,
     scale: Number,
+  },
+  computed: {
+    formattedImageWidth() {
+      return Math.floor(this.imageWidth);
+    },
+    formattedImageHeight() {
+      return Math.floor(this.imageHeight);
+    }
   },
   methods: {
     updateScale(event) {

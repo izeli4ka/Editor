@@ -9,7 +9,7 @@
     @mouseup="handleMouseUp"
     @wheel="handleMouseWheel"
     tabindex="0"
-    width="1800"
+    width="1600"
     height="600"
   ></canvas>
   <CorrectionModal

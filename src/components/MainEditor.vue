@@ -300,11 +300,6 @@ export default defineComponent({
       this.newImg = clear;
     },
     updateNewImgData(data) {
-      // const clear = new Image();
-      // clear.width = this.newImg.width;
-      // clear.height = this.newImg.height;
-      // clear.src = this.newImg.src;
-      // clear.data = data;
       this.newImg.data = data;
     },
   },
@@ -484,6 +479,10 @@ p {
   margin-top: 10px;
   display: flex;
   gap: 10px;
+  justify-content: space-between;
+}
+.editor{
+  display: flex;
   justify-content: space-between;
 }
 </style>

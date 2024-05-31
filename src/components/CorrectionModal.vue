@@ -11,69 +11,34 @@
       <div class="point-inputs">
         <div class="point-with-prefix">
           <label for="x1" :style="{ left: '3px' }">x1</label>
-          <input
-            id="x1"
-            :value="point1x"
-            @change="updateX1"
-            :disabled="previewEnabled"
-          />
+          <input id="x1" :value="point1x" @change="updateX1" :disabled="previewEnabled" />
         </div>
         <div class="point-with-prefix">
           <label for="y1" :style="{ left: '3px' }">y1</label>
-          <input
-            id="y1"
-            :value="point1y"
-            @change="updateY1"
-            :disabled="previewEnabled"
-          />
+          <input id="y1" :value="point1y" @change="updateY1" :disabled="previewEnabled" />
         </div>
       </div>
       <div class="point-inputs">
         <div class="point-with-prefix">
           <label for="x2" :style="{ left: '3px' }">x2</label>
-          <input
-            id="x2"
-            :value="point2x"
-            @change="updateX2"
-            :disabled="previewEnabled"
-          />
+          <input id="x2" :value="point2x" @change="updateX2" :disabled="previewEnabled" />
         </div>
         <div class="point-with-prefix">
           <label for="y2" :style="{ left: '3px' }">y2</label>
-          <input
-            id="y2"
-            :value="point2y"
-            @change="updateY2"
-            :disabled="previewEnabled"
-          />
+          <input id="y2" :value="point2y" @change="updateY2" :disabled="previewEnabled" />
         </div>
       </div>
       <div class="correction-preview">
         <div class="custom-checkbox">
           <input type="checkbox" v-model="previewEnabled" />
-          <img
-            v-if="previewEnabled"
-            class="checkbox-image"
-            src="../assets/eye.png"
-            alt="Lock"
-          />
-          <img
-            v-else
-            class="checkbox-image"
-            src="../assets/closed-eye.png"
-            alt="Unlock"
-          />
+          <img v-if="previewEnabled" class="checkbox-image" src="../assets/eye.png" alt="Lock" />
+          <img v-else class="checkbox-image" src="../assets/closed-eye.png" alt="Unlock" />
         </div>
       </div>
     </div>
+    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
     <div class="correction-actions">
-      <button
-        class="correction-button"
-        @click="applyCorrection"
-        :disabled="imgCorrected"
-      >
-        Apply
-      </button>
+      <button class="correction-button" @click="applyCorrection" :disabled="imgCorrected">Apply</button>
       <button class="correction-button" @click="resetValues">Reset</button>
     </div>
     <div class="correction-graph">
@@ -110,6 +75,7 @@ export default defineComponent({
       previewEnabled: false,
       chartInstance: null,
       imgCorrected: false,
+      errorMessage: '',
     };
   },
   methods: {
@@ -125,12 +91,7 @@ export default defineComponent({
       img.onload = () => {
         const ctx = this.canvasRef?.getContext("2d");
         try {
-          const imageData = ctx.getImageData(
-            this.dx,
-            this.dy,
-            this.iw,
-            this.ih
-          );
+          const imageData = ctx.getImageData(this.dx, this.dy, this.iw, this.ih);
           const data = imageData.data;
           const redHistogram = new Array(256).fill(0);
           const greenHistogram = new Array(256).fill(0);
@@ -144,17 +105,10 @@ export default defineComponent({
             greenHistogram[green]++;
             blueHistogram[blue]++;
           }
-          // Нормализовать гистограммы
           const normalizedRedHistogram = this.normalizeHistogram(redHistogram);
-          const normalizedGreenHistogram =
-            this.normalizeHistogram(greenHistogram);
-          const normalizedBlueHistogram =
-            this.normalizeHistogram(blueHistogram);
-          this.drawHistograms(
-            normalizedRedHistogram,
-            normalizedGreenHistogram,
-            normalizedBlueHistogram
-          );
+          const normalizedGreenHistogram = this.normalizeHistogram(greenHistogram);
+                    const normalizedBlueHistogram = this.normalizeHistogram(blueHistogram);
+          this.drawHistograms(normalizedRedHistogram, normalizedGreenHistogram, normalizedBlueHistogram);
         } catch (e) {
           console.log(e);
         }
@@ -167,8 +121,7 @@ export default defineComponent({
       if (this.chartInstance) {
         this.chartInstance.destroy();
       }
-      // Установка квадратного размера canvas
-      const canvasSize = 600; // Размер стороны квадрата
+      const canvasSize = 600;
       this.chartRef.width = canvasSize;
       this.chartRef.height = canvasSize;
 
@@ -229,7 +182,7 @@ export default defineComponent({
               min: 0,
               max: 260,
               ticks: {
-                stepSize: 20, // или другой шаг, чтобы деления были удобными
+                stepSize: 20,
               },
             },
             y: {
@@ -237,7 +190,7 @@ export default defineComponent({
               min: 0,
               max: 260,
               ticks: {
-                stepSize: 15, // или другой шаг, чтобы деления были удобными
+                stepSize: 15,
               },
             },
           },
@@ -251,8 +204,7 @@ export default defineComponent({
           lut[i] = this.point1y;
         }
         for (let i = this.point1x; i < this.point2x; i++) {
-          const slope =
-            (this.point2y - this.point1y) / (this.point2x - this.point1x); // Угловой коэф.
+          const slope = (this.point2y - this.point1y) / (this.point2x - this.point1x);
           let correctedValue = this.point1y + slope * (i - this.point1x);
           correctedValue = Math.max(0, Math.min(255, correctedValue));
           lut[i] = correctedValue;
@@ -265,9 +217,9 @@ export default defineComponent({
         const imageData = ctx.getImageData(this.dx, this.dy, this.iw, this.ih);
         const data = imageData.data;
         for (let i = 0; i < data.length; i += 4) {
-          data[i] = lut[data[i]]; // Коррекция красного канала
-          data[i + 1] = lut[data[i + 1]]; // Коррекция зеленого канала
-          data[i + 2] = lut[data[i + 2]]; // Коррекция синего канала
+          data[i] = lut[data[i]];
+          data[i + 1] = lut[data[i + 1]];
+          data[i + 2] = lut[data[i + 2]];
         }
 
         ctx.putImageData(imageData, this.dx, this.dy);
@@ -281,7 +233,7 @@ export default defineComponent({
       this.$emit("revertNewImg");
       this.imgCorrected = false;
     },
-    applyCorrection() {
+        applyCorrection() {
       this.$emit("close");
       this.calculateCorrection();
       this.buildGraph();
@@ -295,14 +247,27 @@ export default defineComponent({
     },
     updateX1(event) {
       const num = +event.target.value;
+      this.errorMessage = '';
 
-      if (!isNaN(num) && num >= 0 && num < this.point2x) {
-        this.point1x = num;
-        this.buildGraph();
-      } else {
-        this.point1x += 1;
-        this.point1x -= 1;
+      if (isNaN(num) || num < 0 || num >= this.point2x) {
+        this.errorMessage = 'x1 должен быть меньше, чем x2 и не меньше 0.';
+        return;
       }
+
+      this.point1x = num;
+      this.buildGraph();
+    },
+    updateX2(event) {
+      const num = +event.target.value;
+      this.errorMessage = '';
+
+      if (isNaN(num) || num > 255 || num <= this.point1x) {
+        this.errorMessage = 'x2 должен быть больше, чем x1 и не больше 255.';
+        return;
+      }
+
+      this.point2x = num;
+      this.buildGraph();
     },
     updateY1(event) {
       const num = +event.target.value;
@@ -313,17 +278,6 @@ export default defineComponent({
       } else {
         this.point1y += 1;
         this.point1y -= 1;
-      }
-    },
-    updateX2(event) {
-      const num = +event.target.value;
-
-      if (!isNaN(num) && num <= 255 && this.point1x <= num) {
-        this.point2x = num;
-        this.buildGraph();
-      } else {
-        this.point2x += 1;
-        this.point2x -= 1;
       }
     },
     updateY2(event) {
@@ -383,7 +337,7 @@ export default defineComponent({
   background: transparent;
 }
 
-.correction-info-panel .corrections-graph {
+.correction-info-panel .correction-graph {
   font-size: small;
   display: flex;
   flex-direction: column;
@@ -459,5 +413,19 @@ export default defineComponent({
 
 .custom-checkbox input[type="checkbox"]:hover {
   border-color: #a0a0a0;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+}
+
+.button-label {
+  cursor: pointer;
+}
+
+.button-image {
+  width: 20px;
+  height: 20px;
 }
 </style>

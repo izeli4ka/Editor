@@ -9,7 +9,7 @@
     @mouseup="handleMouseUp"
     @wheel="handleMouseWheel"
     tabindex="0"
-    width="1600"
+    width="1200"
     height="600"
   ></canvas>
   <CorrectionModal
@@ -128,17 +128,22 @@ export default defineComponent({
     },
     moveImage() {
       const canvas = this.canvasRef;
-      if (this.offsetX + 10 > canvas.width) {
-        this.offsetX = canvas.width - 10;
+
+      // Ограничения по правой границе
+      if (this.offsetX + this.iw > canvas.width) {
+        this.offsetX = canvas.width - this.iw;
       }
-      if (this.offsetX + 10 > canvas.height) {
-        this.offsetY = canvas.height - 10;
+      // Ограничения по нижней границе
+      if (this.offsetY + this.ih > canvas.height) {
+        this.offsetY = canvas.height - this.ih;
       }
-      if (this.offsetX + this.iw < 10) {
-        this.offsetX = -this.iw + 10;
+      // Ограничения по левой границе
+      if (this.offsetX < 0) {
+        this.offsetX = 0;
       }
-      if (this.offsetY + this.ih < 10) {
-        this.offsetY = -this.ih + 10;
+      // Ограничения по верхней границе
+      if (this.offsetY < 0) {
+        this.offsetY = 0;
       }
 
       const ctx = this.canvasRef?.getContext("2d");

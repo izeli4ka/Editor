@@ -134,6 +134,8 @@ export default defineComponent({
           break;
       }
     },
+  
+
     updateKernel(event, rowIndex, colIndex) {
       const num = +event.target.value;
 

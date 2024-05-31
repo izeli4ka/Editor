@@ -32,70 +32,70 @@
     />
   </div>
   <ModalWindow v-show="isShowModal" @close="closeModal">
-    <template v-slot:body>
-      <div class="modal">
-        <select
-          class="resize-unit"
-          id="resizeUnit"
-          v-model="resizeUnit"
-          @change="updateModal($event)"
-        >
-          <option value="percentage">Percentage</option>
-          <option value="pixels">Pixels</option>
-        </select>
-        <div class="sizes">
-          <div class="input-with-prefix">
-            <label for="width" :style="{ left: '3px' }">Width</label>
-            <div class="input-with-prefix-height" :style="{ gap: '10px', display: 'flex' }"><input id="width" :value="newiw" @change="updateNewiw" />
-            <label for="width" class="type" :style="{ right: '3px' }">
-              {{ resizeUnit === "pixels" ? "px" : "%" }}
-            </label></div>
-          </div>
-          <div class="custom-checkbox">
-            <input type="checkbox" v-model="bind" />
-            <img
-              v-if="bind"
-              class="checkbox-image"
-              src="../assets/lock.png"
-              alt="Lock"
-            />
-            <img
-              v-else
-              class="checkbox-image"
-              src="../assets/unlock.png"
-              alt="Unlock"
-            />
-          </div>
-          <div class="input-with-prefix">
-            <label for="height" :style="{ left: '6px' }">Height</label>
-            <div class="input-with-prefix-height" :style="{ gap: '10px', display: 'flex' }"><input id="height" :value="newih" @change="updateNewih" />
-            <label for="height" class="type" :style="{ right: '3px' }">
-              {{ resizeUnit === "pixels" ? "px" : "%" }}
-            </label></div>
-          </div>
+  <template v-slot:body>
+    <div class="modal">
+      <select
+        class="resize-unit"
+        id="resizeUnit"
+        v-model="resizeUnit"
+        @change="updateModal($event)"
+      >
+        <option value="percentage">Percentage</option>
+        <option value="pixels">Pixels</option>
+      </select>
+      <div class="sizes">
+        <div class="input-with-prefix">
+          <label for="width" :style="{ left: '3px' }">Width</label>
+          <label for="width" class="type" :style="{ right: '3px' }">
+            {{ resizeUnit === "pixels" ? "px" : "%" }}
+          </label>
+          <input id="width" :value="Math.floor(newiw)" @change="updateNewiw" />
         </div>
-        <div class="interpolation">
-          <label for="interpolation">Interpolation:</label>
-          <select v-model="interpolation" id="interpolation">
-            <option></option>
-            <option
-              value="nearestNeighbor"
-              title="Nearest Neighbor: Each pixel in the new image is assigned the value of the nearest pixel in the original image."
-            >
-              Nearest Neighbor
-            </option>
-          </select>
+        <div class="custom-checkbox">
+          <input type="checkbox" v-model="bind" />
+          <img
+            v-if="bind"
+            class="checkbox-image"
+            src="../assets/lock.png"
+            alt="Заблокировать"
+          />
+          <img
+            v-else
+            class="checkbox-image"
+            src="../assets/unlock.png"
+            alt="Разблокировать"
+          />
         </div>
-        <div class="sizes-counter">
-          <p>Now: {{ getResolutionNow() }} MPs</p>
-          <p>After: {{ getResolutionAfter() }} MPs</p>
+        <div class="input-with-prefix">
+          <label for="height" :style="{ left: '6px' }">Height</label>
+          <label for="height" class="type" :style="{ right: '3px' }">
+            {{ resizeUnit === "pixels" ? "px" : "%" }}
+          </label>
+          <input id="height" :value="Math.floor(newih)" @change="updateNewih" />
         </div>
       </div>
-    </template>
-    <template v-slot:footer>
-      <button @click="handleConfirm" class="confirm-button">Confirm</button>
-    </template>
-  </ModalWindow>
+      <div class="interpolation">
+        <label for="interpolation">Интерполяция:</label>
+        <select v-model="interpolation" id="interpolation">
+          <option></option>
+          <option
+            value="nearestNeighbor"
+            title="Ближайший сосед: Каждому пикселю в новом изображении присваивается значение ближайшего пикселя в исходном изображении."
+          >
+            Ближайший сосед
+          </option>
+        </select>
+      </div>
+      <div class="sizes-counter">
+        <p>Сейчас: {{ getResolutionNow() }} МП</p>
+        <p>После: {{ getResolutionAfter() }} МП</p>
+      </div>
+    </div>
+  </template>
+  <template v-slot:footer>
+    <button @click="handleConfirm" class="confirm-button">Подтвердить</button>
+  </template>
+</ModalWindow>
   <SideBar
     v-show="isShowPanel"
     :state="state"
@@ -202,32 +202,46 @@ export default defineComponent({
       this.$emit("changeState", "");
     },
     updateModal() {
-      if (this.resizeUnit === "pixels") {
-        if (this.newiw === null) {
-          this.newiw = this.iw;
-          if (this.canvasRef.width < this.iw) {
-            this.newiw = this.canvasRef.width;
-          }
-        }
-
-        if (this.newih === null) {
-          this.newih = this.ih;
-          if (this.canvasRef.height < this.ih) {
-            this.newih = this.canvasRef.height;
-          }
-        }
+  if (this.resizeUnit === "pixels") {
+    // Определить ширину и высоту изображения как актуальные значения
+    if (this.newiw === null) {
+      this.newiw = this.iw;
+      if (this.canvasRef.width < this.iw) {
+        this.newiw = this.canvasRef.width;
       }
-      if (this.resizeUnit === "percentage") {
-        const { width, height } = this.canvasRef;
-        const widthPercent = width / 100;
-        const heightPercent = height / 100;
+    }
 
-        if (this.newiw == null) {
-          this.newiw = ~~(this.iw / widthPercent);
-          this.newih = ~~(this.ih / heightPercent);
-        }
+    if (this.newih === null) {
+      this.newih = this.ih;
+      if (this.canvasRef.height < this.ih) {
+        this.newih = this.canvasRef.height;
       }
-    },
+    }
+    }
+
+    if (this.resizeUnit === "percentage") {
+      const { width, height } = this.canvasRef;
+      const widthPercent = width / 100;
+      const heightPercent = height / 100;
+
+      // Сохранить текущие значения пикселей перед переключением на проценты
+      if (this.previousWidthPixels === null && this.previousHeightPixels === null) {
+        this.previousWidthPixels = this.iw;
+        this.previousHeightPixels = this.ih;
+      }
+
+      // Установить ширину и высоту на 100%, если переключились на проценты
+      if (this.newiw !== 100 && this.newih !== 100) {
+        this.newiw = 100;
+        this.newih = 100;
+      }
+
+      if (this.newiw == null) {
+        this.newiw = ~~(this.iw / widthPercent);
+        this.newih = ~~(this.ih / heightPercent);
+      }
+    }
+  },
     updateNewiw(event) {
       const num = +event.target.value;
 

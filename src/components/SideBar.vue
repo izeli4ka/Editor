@@ -253,7 +253,7 @@ p {
   position: absolute;
   top: 0;
   right: 0;
-  width: 200px;
+  width: 300px;
   background: #ffffff;
   border: solid 3px#00d9ff;
   display: flex;

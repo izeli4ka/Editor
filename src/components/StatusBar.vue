@@ -2,7 +2,7 @@
   <div :class="{ 'status-bar': true, 'pipette-mode': state === 'pipette' && pickedColor }">
     <div class="left-side">
       <span v-if="state"> Status: {{ state }}</span>
-      <span v-if="imageWidth && imageHeight"> | W: {{ formattedImageWidth }} | H: {{ formattedImageHeight }}</span>
+      <span v-if="imageWidth && imageHeight"> | W: {{ formattedImageWidth }}px | H: {{ formattedImageHeight }}px</span>
       <span v-if="state === 'pipette' && pickedColor"> | C: {{ pickedColor }}</span>
       <div v-if="state === 'pipette' && pickedColor" class="pipette-color" :style="{ background: pickedColor }"></div>
       <span v-if="state === 'pipette' && pickedColor && xMouse && yMouse"> | Coords: {{ xMouse }}:{{ yMouse }}</span>
@@ -60,9 +60,6 @@ export default defineComponent({
 .status-bar {
   position: absolute;
   bottom: 0;
-  /* width: 100%; */
-  /* height: 30px; */
-  /* background: #e5e5e5; */
   padding: 10px;
 }
 

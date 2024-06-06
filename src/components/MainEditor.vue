@@ -180,7 +180,6 @@ export default defineComponent({
     },
     handleConfirm() {
       this.scale = 100;
-      // force update
       const image = new Image();
       image.src = this.img;
 
@@ -188,13 +187,26 @@ export default defineComponent({
         image.width = this.newiw;
         image.height = this.newih;
       }
+
       if (this.resizeUnit === "percentage") {
-        const { width, height } = this.canvasRef;
-        const widthPercent = width / 100;
-        const heightPercent = height / 100;
-        image.widht = this.newiw * widthPercent;
-        image.height = this.newih * heightPercent;
+        const { width, height } = this.origImg;
+        let widthMultiplier = this.newiw / 100;
+        let heightMultiplier = this.newih / 100;
+
+        // Проверка на синхронизацию
+        if (this.bind) {
+          heightMultiplier = widthMultiplier;
+          this.newih = this.newiw; // Обновляем значение высоты в процентах
+        }
+
+        image.width = width * widthMultiplier;
+        image.height = height * heightMultiplier;
+
+        console.log('Original image width:', width, 'Original image height:', height);
+        console.log('Width multiplier:', widthMultiplier, 'Height multiplier:', heightMultiplier);
+        console.log('New image width:', image.width, 'New image height:', image.height);
       }
+
       this.iw = image.width;
       this.ih = image.height;
       this.newImg = image;
@@ -202,46 +214,43 @@ export default defineComponent({
       this.$emit("changeState", "");
     },
     updateModal() {
-  if (this.resizeUnit === "pixels") {
-    // Определить ширину и высоту изображения как актуальные значения
-    if (this.newiw === null) {
-      this.newiw = this.iw;
-      if (this.canvasRef.width < this.iw) {
-        this.newiw = this.canvasRef.width;
-      }
-    }
+      if (this.resizeUnit === "pixels") {
+        if (this.newiw === null) {
+          this.newiw = this.iw;
+          if (this.canvasRef.width < this.iw) {
+            this.newiw = this.canvasRef.width;
+          }
+        }
 
-    if (this.newih === null) {
-      this.newih = this.ih;
-      if (this.canvasRef.height < this.ih) {
-        this.newih = this.canvasRef.height;
-      }
-    }
-    }
-
-    if (this.resizeUnit === "percentage") {
-      const { width, height } = this.canvasRef;
-      const widthPercent = width / 100;
-      const heightPercent = height / 100;
-
-      // Сохранить текущие значения пикселей перед переключением на проценты
-      if (this.previousWidthPixels === null && this.previousHeightPixels === null) {
-        this.previousWidthPixels = this.iw;
-        this.previousHeightPixels = this.ih;
+        if (this.newih === null) {
+          this.newih = this.ih;
+          if (this.canvasRef.height < this.ih) {
+            this.newih = this.canvasRef.height;
+          }
+        }
       }
 
-      // Установить ширину и высоту на 100%, если переключились на проценты
-      if (this.newiw !== 100 && this.newih !== 100) {
-        this.newiw = 100;
-        this.newih = 100;
-      }
+      if (this.resizeUnit === "percentage") {
+        const { width, height } = this.origImg;
+        const widthPercent = width / 100;
+        const heightPercent = height / 100;
 
-      if (this.newiw == null) {
-        this.newiw = ~~(this.iw / widthPercent);
-        this.newih = ~~(this.ih / heightPercent);
+        if (this.previousWidthPixels === null && this.previousHeightPixels === null) {
+          this.previousWidthPixels = this.iw;
+          this.previousHeightPixels = this.ih;
+        }
+
+        if (this.newiw !== 100 && this.newih !== 100) {
+          this.newiw = 100;
+          this.newih = 100;
+        }
+
+        if (this.newiw == null) {
+          this.newiw = ~~(this.iw / widthPercent);
+          this.newih = ~~(this.ih / heightPercent);
+        }
       }
-    }
-  },
+    },
     updateNewiw(event) {
       const num = +event.target.value;
 
@@ -253,8 +262,7 @@ export default defineComponent({
         }
 
         if (this.bind) {
-          const coef = this.ih / this.iw;
-          this.newih = ~~(num * coef);
+          this.newih = this.newiw; // Привязка высоты к ширине
         }
       } else {
         this.newiw += 1;
@@ -272,8 +280,7 @@ export default defineComponent({
         }
 
         if (this.bind) {
-          const coef = this.iw / this.ih;
-          this.newiw = ~~(num * coef);
+          this.newiw = this.newih; // Привязка ширины к высоте
         }
       } else {
         this.newih += 1;
@@ -288,10 +295,11 @@ export default defineComponent({
         return ((this.newiw * this.newih) / 1000000).toFixed(2);
       }
       if (this.resizeUnit === "percentage") {
-        const { width, height } = this.canvasRef;
-        const percentage = (width / 100) * (height / 100);
+        const { width, height } = this.origImg;
+        const widthMultiplier = this.newiw / 100;
+        const heightMultiplier = this.newih / 100;
 
-        return ((this.newiw * this.newih * percentage) / 1000000).toFixed(2);
+        return (((width * widthMultiplier) * (height * heightMultiplier)) / 1000000).toFixed(2);
       }
     },
     interpolationCb(img, iw, ih) {

@@ -94,7 +94,13 @@ export default defineComponent({
         [0, 1, 0],
         [0, 0, 0],
       ],
+      currentImg: null,
+      originalImg: null,
     };
+  },
+  mounted() {
+    this.currentImg = this.newImg;
+    this.originalImg = this.origImg;
   },
   methods: {
     close() {
@@ -134,11 +140,8 @@ export default defineComponent({
           break;
       }
     },
-  
-
     updateKernel(event, rowIndex, colIndex) {
       const num = +event.target.value;
-
       if (!isNaN(num)) {
         this.kernel[rowIndex][colIndex] = num;
       } else {
@@ -151,18 +154,15 @@ export default defineComponent({
       const imageData = ctx.getImageData(this.dx, this.dy, this.iw, this.ih);
       const newData = new Uint8ClampedArray(imageData.data.length);
 
-      // Обработка краев (padding)
       const paddedData = this.padImageData(
         imageData.data,
         imageData.width,
         imageData.height
       );
 
-      // Свертка по каналам
       for (let y = 0; y < imageData.height; y++) {
         for (let x = 0; x < imageData.width; x++) {
           for (let c = 0; c < 4; c++) {
-            // Каналы: R, G, B, A
             const outputIndex = (y * imageData.width + x) * 4 + c;
             let sum = 0;
             let kernelSum = 0;
@@ -174,21 +174,21 @@ export default defineComponent({
                 kernelSum += this.kernel[ky][kx];
               }
             }
-            newData[outputIndex] = sum / kernelSum;
+            newData[outputIndex] = kernelSum !== 0 ? sum / kernelSum : sum;
           }
         }
       }
 
       imageData.data.set(newData);
       ctx.putImageData(imageData, this.dx, this.dy);
-    },
 
+      this.currentImg = new ImageData(new Uint8ClampedArray(imageData.data), imageData.width, imageData.height);
+    },
     padImageData(data, width, height) {
       const paddedWidth = width + 2;
       const paddedHeight = height + 2;
       const paddedData = new Uint8ClampedArray(paddedWidth * paddedHeight * 4);
 
-      // Копирование исходных данных
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
           const inputIndex = (y * width + x) * 4;
@@ -200,7 +200,6 @@ export default defineComponent({
         }
       }
 
-      // Обработка краев
       for (let y = 0; y < paddedHeight; y++) {
         for (let x = 0; x < paddedWidth; x++) {
           const outputIndex = (y * paddedWidth + x) * 4;
@@ -223,13 +222,15 @@ export default defineComponent({
       return paddedData;
     },
     applyFiltration() {
-      this.$emit("close");
       this.calculateFiltration();
+      this.$emit("update:newImg", this.currentImg);
+      this.$emit("close");
     },
     resetFiltration() {
-      this.$emit("revertNewImg");
       this.previewEnabled = false;
       this.applyPreset("identity");
+      const ctx = this.canvasRef?.getContext("2d");
+      ctx.putImageData(this.originalImg, this.dx, this.dy);
     },
   },
   watch: {

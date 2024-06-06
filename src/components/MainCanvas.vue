@@ -61,6 +61,14 @@ export default defineComponent({
     newih: Number,
     isShowCorrection: Boolean,
     isShowFiltration: Boolean,
+    originalWidth: {
+    type: Number,
+    required: true
+  },
+  originalHeight: {
+    type: Number,
+    required: true
+  },
   },
   emits: [
     "updateImageSizes",
@@ -100,31 +108,19 @@ export default defineComponent({
     drawImage(newImg) {
       const canvas = this.canvasRef;
       const ctx = this.canvasRef?.getContext("2d");
-      const img = newImg;
-      img.onload = () => {
+      newImg.onload = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        canvas.width = this.canvasRef.clientWidth;
-        canvas.height = this.canvasRef.clientHeight;
-        ctx.imageSmoothingEnabled = false;
+        const [dx, dy, iw, ih] = this.getImageSizes(canvas, newImg);
 
-        const [dx, dy, iw, ih] = this.getImageSizes(canvas, img);
-        const imageData = ctx.getImageData(dx, dy, iw, ih);
-        if (this.imageData instanceof ImageData) {
-          const interpolatedData = this.interpolationCb(imageData, ~~iw, ~~ih);
-          if (interpolatedData !== null) {
-            ctx.putImageData(interpolatedData, dx, dy);
-          }
-        } else {
-          ctx.drawImage(img, dx, dy, iw, ih);
-        }
+        ctx.drawImage(newImg, dx, dy, iw, ih);
 
         this.offsetX = dx;
         this.offsetY = dy;
         this.iw = iw;
         this.ih = ih;
-        this.$emit("updateImageSizes", iw, ih);
+        this.$emit("updateImageSizes", iw, ih); // вызываем событие
       };
-      img.src = this.newImg.src;
+      newImg.src; // просто вызовите свойство src для загрузки изображения, без присвоения
     },
     moveImage() {
       const canvas = this.canvasRef;
@@ -202,6 +198,8 @@ export default defineComponent({
       const ch = canvas.height;
       const iw = img.width;
       const ih = img.height;
+      this.iw = this.originalWidth;
+      this.ih = this.originalHeight;
 
       return getScaledSize(canvas, getSizeType(iw, ih, cw, ch), this.scale);
 

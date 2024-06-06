@@ -2,6 +2,8 @@
   <div class="editor">
     <MainCanvas
       ref="canvas"
+      :originalWidth="originalWidth"
+      :originalHeight="originalHeight"
       :state="state"
       :img="img"
       :origImg="origImg"
@@ -124,6 +126,9 @@ export default defineComponent({
   },
   data() {
     return {
+      originalWidth: 0,
+      originalHeight: 0,
+
       canvasRef: null,
       newImg: null,
       origImg: null,
@@ -151,6 +156,10 @@ export default defineComponent({
     this.canvasRef = this.$refs.canvas.getCanvasRef();
   },
   methods: {
+    setOriginalImageSize(width, height) {
+      this.originalWidth = width;
+      this.originalHeight = height;
+    },
     closeModal() {
       this.isShowModal = false;
       this.$emit("changeState", "");
@@ -350,16 +359,18 @@ export default defineComponent({
         this.closeModals();
       }
     },
-    img() {
-      this.iw = null;
-      this.ih = null;
-      this.newiw = null;
-      this.newih = null;
-      this.scale = 100;
+    img(newVal) {
+      if (newVal) {
+        this.iw = null;
+        this.ih = null;
+        this.newiw = null;
+        this.newih = null;
+        this.scale = 100;
 
-      this.origImg = new Image();
-      this.origImg.src = this.img;
-      this.newImg = this.origImg;
+        this.origImg = new Image();
+        this.origImg.src = this.img;
+        this.newImg = this.origImg;
+      }
     },
     isShowModal(newValue) {
       if (newValue) {

@@ -143,19 +143,40 @@ export default defineComponent({
       const selectedFile = target.files?.[0];
 
       if (selectedFile) {
+        // Проверка типа файла
+        if (!selectedFile.type.startsWith('image/')) {
+          console.error('Выбранный файл не является изображением.');
+          return;
+        }
+
         const imageUrl = URL.createObjectURL(selectedFile);
         this.selectedImage = imageUrl;
-        this.$emit("onImageSelected", imageUrl);
+
+        const image = new Image();
+        image.src = imageUrl;
+        image.onload = () => {
+          // Сохранение исходных размеров изображения
+          this.originalWidth = image.width;
+          this.originalHeight = image.height;
+
+          this.$emit("onImageSelected", imageUrl);
+          this.$emit("updateImageSizes", image.width, image.height);
+        };
 
         target.value = "";
       }
     },
     loadImageFromUrl() {
-      if (this.imageUrl) {
-        this.$emit("onImageSelected", this.imageUrl);
-        this.selectedImage = this.imageUrl;
-        this.imageUrl = "";
-      }
+        if (this.imageUrl) {
+            const image = new Image();
+            image.src = this.imageUrl;
+            image.onload = () => {
+                this.$emit("onImageSelected", this.imageUrl);
+                this.selectedImage = this.imageUrl;
+                this.$emit("updateImageSizes", image.width, image.height);
+                this.imageUrl = "";
+            };
+        }
     },
     handleButtonClick(event) {
       const target = event.target;
